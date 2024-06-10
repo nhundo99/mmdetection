@@ -444,9 +444,9 @@ train_cfg = dict(max_epochs=3, type='EpochBasedTrainLoop', val_interval=1)
 train_dataloader = dict(
     batch_size=1,
     dataset=dict(
-        ann_file='/opt/ml/input/data/dataset_height_further/train_annotations.json', # /opt/ml/input/data/train/correct_train.json
+        ann_file='/opt/ml/input/data/train/train_annotations.json', # /opt/ml/input/data/train/correct_train.json
         backend_args=None,
-        data_prefix=dict(img='/opt/ml/input/data/dataset_height_further/images/train/'), #/opt/ml/input/data/train/images/
+        data_prefix=dict(img='/opt/ml/input/data/train/images/'), #/opt/ml/input/data/train/images/
         data_root='/opt/ml/input/data/',
         filter_cfg=dict(filter_empty_gt=False, min_size=32),
         pipeline=[
@@ -732,9 +732,9 @@ val_dataloader = dict(
     batch_size=1,
     dataset=dict(
         _scope_='mmdet',
-        ann_file='/opt/ml/input/data/dataset_height_further/val_annotations.json', #/opt/ml/input/data/validation/correct_val.json
+        ann_file='/opt/ml/input/data/validation/val_annotations.json', #/opt/ml/input/data/validation/correct_val.json
         backend_args=None,
-        data_prefix=dict(img='/opt/ml/input/data/dataset_height_further/images/val/'), #/opt/ml/input/data/validation/images/
+        data_prefix=dict(img='/opt/ml/input/data/validation/images/'), #/opt/ml/input/data/validation/images/
         data_root='/opt/ml/input/data/',
         pipeline=[
             dict(backend_args=None, type='LoadImageFromFile'),
@@ -761,7 +761,7 @@ val_dataloader = dict(
     sampler=dict(_scope_='mmdet', shuffle=False, type='DefaultSampler'))
 val_evaluator = dict(
     _scope_='mmdet',
-    ann_file='/opt/ml/input/data/dataset_height_further/val_annotations.json', #/opt/ml/input/data/validation/correct_val.json
+    ann_file='/opt/ml/input/data/validation/val_annotations.json', #/opt/ml/input/data/validation/correct_val.json
     backend_args=None,
     format_only=False,
     metric='bbox',
