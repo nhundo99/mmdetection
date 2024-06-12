@@ -732,7 +732,7 @@ val_dataloader = dict(
     batch_size=1,
     dataset=dict(
         _scope_='mmdet',
-        ann_file='/opt/ml/input/data/val/validation_annotations.json', #/opt/ml/input/data/validation/correct_val.json
+        ann_file='/opt/ml/input/data/validation/validation_annotations.json', #/opt/ml/input/data/validation/correct_val.json
         backend_args=None,
         data_prefix=dict(img='/opt/ml/input/data/validation/images/'), #/opt/ml/input/data/validation/images/
         data_root='/opt/ml/input/data/',
