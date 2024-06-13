@@ -3,7 +3,21 @@ import argparse
 import os
 import os.path as osp
 
-from mmengine.config import Config, DictAction
+import time
+
+def wait_before_import_config():
+    t = int(os.environ.get('LOCAL_RANK', 0))
+    time.sleep(t * 0.5)
+
+def wait_after_import_config():
+    t = int(os.environ.get('WORLD_SIZE', 0)) - int(os.environ.get('LOCAL_RANK', 0))
+    time.sleep(t * 0.5)
+
+wait_before_import_config()
+from mmengine.config import Config
+wait_after_import_config()
+
+from mmengine.config import DictAction
 from mmengine.registry import RUNNERS
 from mmengine.runner import Runner
 
@@ -12,7 +26,7 @@ from mmdet.utils import setup_cache_size_limit_of_dynamo
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train a detector')
-    parser.add_argument('--config', help='train config file path')
+    parser.add_argument('--config', type=str, help='train config file path')
     parser.add_argument('--work-dir', help='the dir to save logs and models')
     parser.add_argument(
         '--amp',
