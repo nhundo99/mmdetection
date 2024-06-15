@@ -21,7 +21,7 @@ env_cfg = dict(
     dist_cfg=dict(backend='nccl'),
     mp_cfg=dict(mp_start_method='fork', opencv_num_threads=0))
 launcher = 'pytorch'
-resume = True # set to true to resume training from previous epoch
+resume = False # set to true to resume training from previous epoch
 # load_from = '/opt/ml/code/checkpoints/epoch_5.pth'
 load_from = '/opt/ml/code/work_dirs/custom_co_dino_5scale_swin_l_16xb1_1x_coco/pretrained_model/custom_co_dino_5scale_swin_large_1x_coco-27c13da4.pth'
 log_level = 'INFO'
