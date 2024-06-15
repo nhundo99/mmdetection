@@ -6,6 +6,7 @@ from .base_semseg_dataset import BaseSegDataset
 from .base_video_dataset import BaseVideoDataset
 from .cityscapes import CityscapesDataset
 from .coco import CocoDataset
+from .coco_height import CocoHeightDataset
 from .coco_caption import CocoCaptionDataset
 from .coco_panoptic import CocoPanopticDataset
 from .coco_semantic import CocoSegDataset
