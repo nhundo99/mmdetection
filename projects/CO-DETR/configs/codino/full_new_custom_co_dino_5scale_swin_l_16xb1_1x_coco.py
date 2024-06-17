@@ -390,7 +390,7 @@ test_dataloader = dict(
         ann_file='/root/Nick/Genioos/synthesize_images/dataset_height_further/test_annotations.json', #/root/Sofia/Genioos/data/full_dataset/test/test.json
         backend_args=None,
         data_prefix=dict(
-            img='/root/Nick/Genioos/synthesize_images/dataset_height_further/images/test'), #/root/Sofia/Genioos/data/full_dataset/test/images/
+            img='/root/Nick/Genioos/synthesize_images/dataset_height_further/images/test_jpg'), #/root/Sofia/Genioos/data/full_dataset/test/images/
         data_root='/root/Nick/Genioos/synthesize_images/dataset_height_further/', #/root/Sofia/Genioos/data/full_dataset/
         pipeline=[
             dict(backend_args=None, type='LoadImageFromFile'),
@@ -734,7 +734,7 @@ val_dataloader = dict(
         _scope_='mmdet',
         ann_file='/opt/ml/input/data/validation/validation_annotations.json', #/opt/ml/input/data/validation/correct_val.json
         backend_args=None,
-        data_prefix=dict(img='/opt/ml/input/data/validation/images/'), #/opt/ml/input/data/validation/images/
+        data_prefix=dict(img='/opt/ml/input/data/validation/images_jpg/'), #/opt/ml/input/data/validation/images/
         data_root='/opt/ml/input/data/',
         pipeline=[
             dict(backend_args=None, type='LoadImageFromFile'),
