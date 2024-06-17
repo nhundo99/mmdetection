@@ -446,7 +446,7 @@ train_dataloader = dict(
     dataset=dict(
         ann_file='/opt/ml/input/data/train/train_annotations.json', # /opt/ml/input/data/train/correct_train.json
         backend_args=None,
-        data_prefix=dict(img='/opt/ml/input/data/train/images/'), #/opt/ml/input/data/train/images/
+        data_prefix=dict(img='/opt/ml/input/data/train/images_jpg/'), #/opt/ml/input/data/train/images/
         data_root='/opt/ml/input/data/',
         filter_cfg=dict(filter_empty_gt=False, min_size=32),
         pipeline=[
