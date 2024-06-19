@@ -442,7 +442,7 @@ test_pipeline = [
 total_epochs = 3
 train_cfg = dict(max_epochs=3, type='EpochBasedTrainLoop', val_interval=1)
 train_dataloader = dict(
-    batch_size=4,
+    batch_size=1,
     dataset=dict(
         ann_file='/opt/ml/input/data/train/train_annotations.json', # /opt/ml/input/data/train/correct_train.json
         backend_args=None,
