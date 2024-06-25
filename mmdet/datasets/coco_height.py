@@ -16,8 +16,8 @@ class CocoHeightDataset(BaseDetDataset):
 
     METAINFO = {
         'classes': (
-        '1',
-        '0',)
+        'cube_low',
+        'cube_high',)
     }
     COCOAPI = COCO
     # ann_id is unique in coco dataset.

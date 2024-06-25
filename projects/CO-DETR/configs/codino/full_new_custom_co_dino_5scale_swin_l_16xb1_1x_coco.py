@@ -31,7 +31,8 @@ loss_lambda = 2.0
 max_epochs = 3
 max_iters = 270000
 metainfo = dict(
-    classes=[str(i) for i in range(2)])
+    classes=['cube_low',
+             'cube_high'])
 model = dict(
     backbone=dict(
         attn_drop_rate=0.0,
