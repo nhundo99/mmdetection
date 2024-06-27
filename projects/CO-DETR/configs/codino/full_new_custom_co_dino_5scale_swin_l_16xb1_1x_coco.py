@@ -765,7 +765,7 @@ val_evaluator = dict(
     ann_file='/opt/ml/input/data/validation/validation_annotations.json', #/opt/ml/input/data/validation/correct_val.json
     backend_args=None,
     format_only=False,
-    metric=['bbox', 'segm']
+    metric=['bbox', 'segm'],
     type='CocoMetric')
 vis_backends = [
     dict(_scope_='mmdet', type='LocalVisBackend'),
