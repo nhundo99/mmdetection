@@ -28,7 +28,7 @@ log_level = 'INFO'
 log_processor = dict(
     _scope_='mmdet', by_epoch=True, type='LogProcessor', window_size=50)
 loss_lambda = 2.0
-max_epochs = 3
+max_epochs = 5
 max_iters = 270000
 metainfo = dict(
     classes=['cube_low',
@@ -440,8 +440,8 @@ test_pipeline = [
         ),
         type='PackDetInputs'),
 ]
-total_epochs = 3
-train_cfg = dict(max_epochs=3, type='EpochBasedTrainLoop', val_interval=1)
+total_epochs = 5
+train_cfg = dict(max_epochs=5, type='EpochBasedTrainLoop', val_interval=1)
 train_dataloader = dict(
     batch_size=1,
     dataset=dict(
@@ -762,11 +762,11 @@ val_dataloader = dict(
     sampler=dict(_scope_='mmdet', shuffle=False, type='DefaultSampler'))
 val_evaluator = dict(
     _scope_='mmdet',
-    ann_file='/opt/ml/input/data/validation/validation_annotations.json', #/opt/ml/input/data/validation/correct_val.json
+    ann_file='/opt/ml/input/data/validation/validation_annotations.json',
     backend_args=None,
     format_only=False,
-    metric=['bbox', 'segm'],
-    type='CocoMetric')
+    metric=['accuracy', 'precision', 'recall', 'f1_score'],
+    type='ClassificationMetrics')
 vis_backends = [
     dict(_scope_='mmdet', type='LocalVisBackend'),
 ]
