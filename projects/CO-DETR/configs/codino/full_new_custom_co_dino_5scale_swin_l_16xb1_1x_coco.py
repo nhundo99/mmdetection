@@ -28,7 +28,7 @@ log_level = 'INFO'
 log_processor = dict(
     _scope_='mmdet', by_epoch=True, type='LogProcessor', window_size=50)
 loss_lambda = 2.0
-max_epochs = 5
+max_epochs = 10
 max_iters = 270000
 metainfo = dict(
     classes=['cube_low',
@@ -440,8 +440,8 @@ test_pipeline = [
         ),
         type='PackDetInputs'),
 ]
-total_epochs = 5
-train_cfg = dict(max_epochs=5, type='EpochBasedTrainLoop', val_interval=1)
+total_epochs = 10
+train_cfg = dict(max_epochs=10, type='EpochBasedTrainLoop', val_interval=1)
 train_dataloader = dict(
     batch_size=1,
     dataset=dict(
