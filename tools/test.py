@@ -1,4 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+import sys 
+sys.path.insert(0, '/root/Sofia/Genioos/Estimate_Volume/codetr/mmdetection/')
 import argparse
 import os
 import os.path as osp
