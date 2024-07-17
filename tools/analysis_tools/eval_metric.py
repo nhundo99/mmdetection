@@ -1,6 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import argparse
-
+import sys
+sys.path.insert(0, '/root/Nick/Genioos/Estimate_Volume/codetr/mmdetection/')
 import mmengine
 from mmengine import Config, DictAction
 from mmengine.evaluator import Evaluator
