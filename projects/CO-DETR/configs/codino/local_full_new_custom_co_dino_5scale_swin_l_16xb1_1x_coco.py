@@ -390,7 +390,7 @@ test_dataloader = dict(
         ann_file='/root/Nick/Genioos/synthesize_images/dataset_height_further/test_annotations.json',
         backend_args=None,
         data_prefix=dict(
-            img='/root/Nick/Genioos/synthesize_images/dataset_height_further/images/test_jpg/'),
+            img='/root/Nick/Genioos/synthesize_images/dataset_height_further/images/test_download/'),
         data_root='/root/Nick/Genioos/synthesize_images/dataset_height_further/',
         pipeline=[
             dict(backend_args=None, type='LoadImageFromFile'),
@@ -754,7 +754,7 @@ val_dataloader = dict(
                 type='PackDetInputs'),
         ],
         test_mode=True,
-        type='CocoDataset'),
+        type='CocoHeightDataset'),
     drop_last=False,
     num_workers=2,
     persistent_workers=True,
