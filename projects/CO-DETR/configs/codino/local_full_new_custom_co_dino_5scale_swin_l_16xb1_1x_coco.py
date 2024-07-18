@@ -21,7 +21,7 @@ env_cfg = dict(
     dist_cfg=dict(backend='nccl'),
     mp_cfg=dict(mp_start_method='fork', opencv_num_threads=0))
 launcher = 'pytorch'
-load_from = '/opt/ml/code/checkpoints/model/epoch_10.pth'
+load_from = '/root/Nick/Genioos/Estimate_Volume/codetr/trained_models/codetr/epoch_10.pth'
 log_level = 'INFO'
 log_processor = dict(
     _scope_='mmdet', by_epoch=True, type='LogProcessor', window_size=50)
@@ -154,7 +154,7 @@ model = dict(
             type='QualityFocalLoss',
             use_sigmoid=True),
         loss_iou=dict(loss_weight=2.0, type='GIoULoss'),
-        num_classes=323,
+        num_classes=2,
         num_query=900,
         positional_encoding=dict(
             normalize=True,
