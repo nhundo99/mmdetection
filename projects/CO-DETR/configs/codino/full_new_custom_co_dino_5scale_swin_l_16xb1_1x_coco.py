@@ -28,11 +28,29 @@ log_level = 'INFO'
 log_processor = dict(
     _scope_='mmdet', by_epoch=True, type='LogProcessor', window_size=50)
 loss_lambda = 2.0
-max_epochs = 15
+max_epochs = 10
 max_iters = 270000
 metainfo = dict(
-    classes=['cube_low',
-             'cube_high'])
+    classes=['cube_class_1',
+             'cube_class_2',
+             'cube_class_3',
+             'cube_class_4',
+             'cube_class_5',
+             'cube_class_6',
+             'cube_class_7',
+             'cube_class_8',
+             'cube_class_9',
+             'cube_class_10',
+             'cube_class_11',
+             'cube_class_12',
+             'cube_class_13',
+             'cube_class_14',
+             'cube_class_15',
+             'cube_class_16',
+             'cube_class_17',
+             'cube_class_18',
+             'cube_class_19',
+             'cube_class_20'])
 model = dict(
     backbone=dict(
         attn_drop_rate=0.0,
@@ -388,11 +406,11 @@ test_dataloader = dict(
     batch_size=1,
     dataset=dict(
         _scope_='mmdet',
-        ann_file='/root/Nick/Genioos/synthesize_images/dataset_height_further/test_annotations.json', #/root/Sofia/Genioos/data/full_dataset/test/test.json
+        ann_file='/root/Nick/Genioos/synthesize_images/correct_dataset/test_annotations.json', #/root/Sofia/Genioos/data/full_dataset/test/test.json
         backend_args=None,
         data_prefix=dict(
-            img='/root/Nick/Genioos/synthesize_images/dataset_height_further/images/test_jpg'), #/root/Sofia/Genioos/data/full_dataset/test/images/
-        data_root='/root/Nick/Genioos/synthesize_images/dataset_height_further/', #/root/Sofia/Genioos/data/full_dataset/
+            img='/root/Nick/Genioos/synthesize_images/correct_dataset/images/test/'), #/root/Sofia/Genioos/data/full_dataset/test/images/
+        data_root='/root/Nick/Genioos/synthesize_images/correct_dataset/', #/root/Sofia/Genioos/data/full_dataset/
         pipeline=[
             dict(backend_args=None, type='LoadImageFromFile'),
             dict(keep_ratio=True, scale=(
@@ -418,7 +436,7 @@ test_dataloader = dict(
     sampler=dict(_scope_='mmdet', shuffle=False, type='DefaultSampler'))
 test_evaluator = dict(
     _scope_='mmdet',
-    ann_file='/root/Nick/Genioos/synthesize_images/dataset_height_further/test_annotations.json', #/root/Sofia/Genioos/data/full_dataset/test/test.json
+    ann_file='/root/Nick/Genioos/synthesize_images/correct_dataset/test_annotations.json', #/root/Sofia/Genioos/data/full_dataset/test/test.json
     backend_args=None,
     format_only=False,
     metric='bbox',
@@ -440,14 +458,14 @@ test_pipeline = [
         ),
         type='PackDetInputs'),
 ]
-total_epochs = 15
-train_cfg = dict(max_epochs=15, type='EpochBasedTrainLoop', val_interval=1)
+total_epochs = 10
+train_cfg = dict(max_epochs=10, type='EpochBasedTrainLoop', val_interval=1)
 train_dataloader = dict(
     batch_size=1,
     dataset=dict(
         ann_file='/opt/ml/input/data/train/train_annotations.json', # /opt/ml/input/data/train/correct_train.json
         backend_args=None,
-        data_prefix=dict(img='/opt/ml/input/data/train/images_jpg/'), #/opt/ml/input/data/train/images/
+        data_prefix=dict(img='/opt/ml/input/data/train/images/'), #/opt/ml/input/data/train/images/
         data_root='/opt/ml/input/data/',
         filter_cfg=dict(filter_empty_gt=False, min_size=32),
         pipeline=[
@@ -733,9 +751,9 @@ val_dataloader = dict(
     batch_size=1,
     dataset=dict(
         _scope_='mmdet',
-        ann_file='/opt/ml/input/data/validation/validation_annotations.json', #/opt/ml/input/data/validation/correct_val.json
+        ann_file='/opt/ml/input/data/validation/val_annotations.json', #/opt/ml/input/data/validation/correct_val.json
         backend_args=None,
-        data_prefix=dict(img='/opt/ml/input/data/validation/images_jpg/'), #/opt/ml/input/data/validation/images/
+        data_prefix=dict(img='/opt/ml/input/data/validation/images/'), #/opt/ml/input/data/validation/images/
         data_root='/opt/ml/input/data/',
         pipeline=[
             dict(backend_args=None, type='LoadImageFromFile'),
@@ -762,7 +780,7 @@ val_dataloader = dict(
     sampler=dict(_scope_='mmdet', shuffle=False, type='DefaultSampler'))
 val_evaluator = dict(
     _scope_='mmdet',
-    ann_file='/opt/ml/input/data/validation/validation_annotations.json', #/opt/ml/input/data/validation/correct_val.json
+    ann_file='/opt/ml/input/data/validation/val_annotations.json', #/opt/ml/input/data/validation/correct_val.json
     backend_args=None,
     format_only=False,
     metric='bbox',

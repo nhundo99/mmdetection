@@ -16,8 +16,26 @@ class CocoHeightDataset(BaseDetDataset):
 
     METAINFO = {
         'classes': (
-        'cube_low',
-        'cube_high',)
+        'cube_class_1',
+        'cube_class_2',
+        'cube_class_3',
+        'cube_class_4',
+        'cube_class_5',
+        'cube_class_6',
+        'cube_class_7',
+        'cube_class_8',
+        'cube_class_9',
+        'cube_class_10',
+        'cube_class_11',
+        'cube_class_12',
+        'cube_class_13',
+        'cube_class_14',
+        'cube_class_15',
+        'cube_class_16',
+        'cube_class_17',
+        'cube_class_18',
+        'cube_class_19',
+        'cube_class_20',)
     }
     COCOAPI = COCO
     # ann_id is unique in coco dataset.
