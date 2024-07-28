@@ -2,7 +2,7 @@
 from .accuracy import Accuracy, accuracy
 from .ae_loss import AssociativeEmbeddingLoss
 from .balanced_l1_loss import BalancedL1Loss, balanced_l1_loss
-from .cross_entropy_loss import (CrossEntropyCustomLoss, CrossEntropyLoss,
+from .cross_entropy_loss import (DistanceWeightedCrossEntropyLoss, CrossEntropyCustomLoss, CrossEntropyLoss,
                                  binary_cross_entropy, cross_entropy,
                                  mask_cross_entropy)
 from .ddq_detr_aux_loss import DDQAuxLoss
