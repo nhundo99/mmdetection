@@ -402,9 +402,10 @@ class CrossEntropyCustomLoss(CrossEntropyLoss):
     
 @MODELS.register_module()
 class DistanceWeightedCrossEntropyLoss(nn.Module):
-    def __init__(self, num_classes, reduction='mean', loss_weight=1.0):
+    def __init__(self, num_classes, use_sigmoid=False, reduction='mean', loss_weight=1.0):
         super(DistanceWeightedCrossEntropyLoss, self).__init__()
         self.num_classes = num_classes
+        self.use_sigmoid = use_sigmoid
         self.reduction = reduction
         self.loss_weight = loss_weight
         self.distance_matrix = self._create_distance_matrix(num_classes)
@@ -417,18 +418,21 @@ class DistanceWeightedCrossEntropyLoss(nn.Module):
         return distance_matrix
 
     def forward(self, logits, target):
-        # Compute the standard cross-entropy loss
-        ce_loss = F.cross_entropy(logits, target, reduction='none')
-        
-        # Get the predicted classes
-        pred_classes = torch.argmax(logits, dim=1)
-        
+        if self.use_sigmoid:
+            # For sigmoid case
+            ce_loss = F.binary_cross_entropy_with_logits(logits, target.float(), reduction='none')
+            pred_classes = torch.argmax(torch.sigmoid(logits), dim=1)
+        else:
+            # For softmax case
+            ce_loss = F.cross_entropy(logits, target, reduction='none')
+            pred_classes = torch.argmax(logits, dim=1)
+
         # Get the distances between predicted and true classes
         distances = self.distance_matrix[target, pred_classes]
-        
+
         # Compute the weighted loss
         weighted_loss = ce_loss * distances
-        
+
         if self.reduction == 'mean':
             return weighted_loss.mean() * self.loss_weight
         elif self.reduction == 'sum':
