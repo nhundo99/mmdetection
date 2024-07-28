@@ -400,7 +400,7 @@ class CrossEntropyCustomLoss(CrossEntropyLoss):
         acc['acc_classes'] = acc_classes
         return acc
     
-
+@MODELS.register_module()
 class DistanceWeightedCrossEntropyLoss(nn.Module):
 
     def __init__(self,
