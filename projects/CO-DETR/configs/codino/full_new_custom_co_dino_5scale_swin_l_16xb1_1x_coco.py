@@ -8,7 +8,7 @@ default_hooks = dict(
         _scope_='mmdet',
         by_epoch=True,
         interval=1,
-        max_keep_ckpts=5,
+        max_keep_ckpts=1,
         type='CheckpointHook'),
     logger=dict(_scope_='mmdet', interval=50, type='LoggerHook'),
     param_scheduler=dict(_scope_='mmdet', type='ParamSchedulerHook'),
