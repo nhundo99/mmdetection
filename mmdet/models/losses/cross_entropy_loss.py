@@ -400,42 +400,105 @@ class CrossEntropyCustomLoss(CrossEntropyLoss):
         acc['acc_classes'] = acc_classes
         return acc
     
-@MODELS.register_module()
+
 class DistanceWeightedCrossEntropyLoss(nn.Module):
-    def __init__(self, num_classes, use_sigmoid=False, reduction='mean', loss_weight=1.0):
+
+    def __init__(self,
+                 num_classes,
+                 use_sigmoid=False,
+                 use_mask=False,
+                 reduction='mean',
+                 class_weight=None,
+                 ignore_index=None,
+                 loss_weight=1.0,
+                 avg_non_ignore=False):
         super(DistanceWeightedCrossEntropyLoss, self).__init__()
+        assert (use_sigmoid is False) or (use_mask is False)
         self.num_classes = num_classes
         self.use_sigmoid = use_sigmoid
+        self.use_mask = use_mask
         self.reduction = reduction
         self.loss_weight = loss_weight
-        self.distance_matrix = self._create_distance_matrix(num_classes)
+        self.class_weight = class_weight
+        self.ignore_index = ignore_index
+        self.avg_non_ignore = avg_non_ignore
 
-    def _create_distance_matrix(self, num_classes):
-        distance_matrix = torch.zeros((num_classes, num_classes), dtype=torch.float32)
+        # Generate a distance matrix based on the number of classes
+        self.distance_matrix = self.build_distance_matrix(num_classes)
+
+        if ((ignore_index is not None) and not self.avg_non_ignore
+                and self.reduction == 'mean'):
+            warnings.warn(
+                'Default ``avg_non_ignore`` is False, if you would like to '
+                'ignore the certain label and average loss over non-ignore '
+                'labels, which is the same with PyTorch official '
+                'cross_entropy, set ``avg_non_ignore=True``.')
+
+        if self.use_sigmoid:
+            self.cls_criterion = binary_cross_entropy
+        elif self.use_mask:
+            self.cls_criterion = mask_cross_entropy
+        else:
+            self.cls_criterion = self.distance_weighted_cross_entropy
+
+    def build_distance_matrix(self, num_classes):
+        """Build a distance matrix based on the number of classes."""
+        distance_matrix = torch.ones((num_classes, num_classes))
         for i in range(num_classes):
             for j in range(num_classes):
-                distance_matrix[i, j] = abs(i - j)
+                distance_matrix[i, j] = abs(i - j)  # Example distance metric
         return distance_matrix
 
-    def forward(self, logits, target):
-        if self.use_sigmoid:
-            # For sigmoid case
-            ce_loss = F.binary_cross_entropy_with_logits(logits, target.float(), reduction='none')
-            pred_classes = torch.argmax(torch.sigmoid(logits), dim=1)
+    def extra_repr(self):
+        s = f'avg_non_ignore={self.avg_non_ignore}'
+        return s
+
+    def distance_weighted_cross_entropy(self, cls_score, label, weight=None, class_weight=None, reduction='mean', avg_factor=None, ignore_index=None, avg_non_ignore=False, **kwargs):
+        loss = nn.functional.cross_entropy(cls_score, label, weight=class_weight, ignore_index=ignore_index, reduction='none')
+
+        if self.distance_matrix is not None:
+            batch_size = cls_score.size(0)
+            num_classes = cls_score.size(1)
+            distance_weights = self.distance_matrix[label.view(-1), :].view(batch_size, num_classes)
+            loss = loss * distance_weights.gather(1, label.view(-1, 1)).view(-1)
+
+        if reduction == 'mean':
+            if avg_non_ignore:
+                loss = loss.sum() / (label != ignore_index).sum()
+            else:
+                loss = loss.mean()
+        elif reduction == 'sum':
+            loss = loss.sum()
+
+        return loss
+
+    def forward(self,
+                cls_score,
+                label,
+                weight=None,
+                avg_factor=None,
+                reduction_override=None,
+                ignore_index=None,
+                **kwargs):
+        assert reduction_override in (None, 'none', 'mean', 'sum')
+        reduction = (
+            reduction_override if reduction_override else self.reduction)
+        if ignore_index is None:
+            ignore_index = self.ignore_index
+
+        if self.class_weight is not None:
+            class_weight = cls_score.new_tensor(
+                self.class_weight, device=cls_score.device)
         else:
-            # For softmax case
-            ce_loss = F.cross_entropy(logits, target, reduction='none')
-            pred_classes = torch.argmax(logits, dim=1)
-
-        # Get the distances between predicted and true classes
-        distances = self.distance_matrix[target, pred_classes]
-
-        # Compute the weighted loss
-        weighted_loss = ce_loss * distances
-
-        if self.reduction == 'mean':
-            return weighted_loss.mean() * self.loss_weight
-        elif self.reduction == 'sum':
-            return weighted_loss.sum() * self.loss_weight
-        else:
-            return weighted_loss * self.loss_weight
+            class_weight = None
+        loss_cls = self.loss_weight * self.cls_criterion(
+            cls_score,
+            label,
+            weight,
+            class_weight=class_weight,
+            reduction=reduction,
+            avg_factor=avg_factor,
+            ignore_index=ignore_index,
+            avg_non_ignore=self.avg_non_ignore,
+            **kwargs)
+        return loss_cls
