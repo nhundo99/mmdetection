@@ -122,11 +122,9 @@ model = dict(
             loss_centerness=dict(
                 loss_weight=12.0, type='CrossEntropyLoss', use_sigmoid=True),
             loss_cls=dict(
-                alpha=0.25,
-                gamma=2.0,
-                loss_weight=12.0,
-                type='FocalLoss',
-                use_sigmoid=True),
+                type='DistanceWeightedCrossEntropyLoss',
+                num_classes=20,
+                loss_weight=12.0),
             num_classes=20,
             stacked_convs=1,
             type='CoATSSHead'),
@@ -169,10 +167,9 @@ model = dict(
         in_channels=2048,
         loss_bbox=dict(loss_weight=5.0, type='L1Loss'),
         loss_cls=dict(
-            beta=2.0,
-            loss_weight=1.0,
-            type='QualityFocalLoss',
-            use_sigmoid=True),
+            type='DistanceWeightedCrossEntropyLoss',
+            num_classes=20,
+            loss_weight=1.0),
         loss_iou=dict(loss_weight=2.0, type='GIoULoss'),
         num_classes=20,
         num_query=900,
@@ -255,9 +252,10 @@ model = dict(
                 in_channels=256,
                 loss_bbox=dict(loss_weight=120.0, type='GIoULoss'),
                 loss_cls=dict(
-                    loss_weight=12.0,
-                    type='CrossEntropyLoss',
-                    use_sigmoid=False),
+                    type='DistanceWeightedCrossEntropyLoss',
+                    num_classes=20,
+                    loss_weight=12.0
+                ),
                 num_classes=20,
                 reg_class_agnostic=False,
                 reg_decoded_bbox=True,
@@ -314,7 +312,10 @@ model = dict(
         in_channels=256,
         loss_bbox=dict(loss_weight=12.0, type='L1Loss'),
         loss_cls=dict(
-            loss_weight=12.0, type='CrossEntropyLoss', use_sigmoid=True),
+            type='DistanceWeightedCrossEntropyLoss',
+            num_classes=20,
+            loss_weight=12.0
+        ),
         type='RPNHead'),
     test_cfg=[
         dict(max_per_img=300, nms=dict(iou_threshold=0.8, type='soft_nms')),
