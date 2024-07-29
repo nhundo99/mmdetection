@@ -402,16 +402,7 @@ class CrossEntropyCustomLoss(CrossEntropyLoss):
     
 @MODELS.register_module()
 class DistanceWeightedCrossEntropyLoss(nn.Module):
-
-    def __init__(self,
-                 num_classes,
-                 use_sigmoid=False,
-                 use_mask=False,
-                 reduction='mean',
-                 class_weight=None,
-                 ignore_index=None,
-                 loss_weight=1.0,
-                 avg_non_ignore=False):
+    def __init__(self, num_classes, use_sigmoid=False, use_mask=False, reduction='mean', class_weight=None, ignore_index=None, loss_weight=1.0, avg_non_ignore=False):
         super(DistanceWeightedCrossEntropyLoss, self).__init__()
         assert (use_sigmoid is False) or (use_mask is False)
         self.num_classes = num_classes
@@ -422,18 +413,13 @@ class DistanceWeightedCrossEntropyLoss(nn.Module):
         self.class_weight = class_weight
         self.ignore_index = ignore_index
         self.avg_non_ignore = avg_non_ignore
-
-        # Generate a distance matrix based on the number of classes
         self.distance_matrix = self.build_distance_matrix(num_classes)
-
-        if ((ignore_index is not None) and not self.avg_non_ignore
-                and self.reduction == 'mean'):
+        if ((ignore_index is not None) and not self.avg_non_ignore and self.reduction == 'mean'):
             warnings.warn(
                 'Default ``avg_non_ignore`` is False, if you would like to '
                 'ignore the certain label and average loss over non-ignore '
                 'labels, which is the same with PyTorch official '
                 'cross_entropy, set ``avg_non_ignore=True``.')
-
         if self.use_sigmoid:
             self.cls_criterion = binary_cross_entropy
         elif self.use_mask:
@@ -454,14 +440,17 @@ class DistanceWeightedCrossEntropyLoss(nn.Module):
         return s
 
     def distance_weighted_cross_entropy(self, cls_score, label, weight=None, class_weight=None, reduction='mean', avg_factor=None, ignore_index=None, avg_non_ignore=False, **kwargs):
-        loss = nn.functional.cross_entropy(cls_score, label, weight=class_weight, ignore_index=ignore_index, reduction='none')
-
+        # Use the custom cross_entropy function from the file
+        loss = cross_entropy(
+            cls_score, label, weight=weight, reduction='none',
+            avg_factor=avg_factor, class_weight=class_weight,
+            ignore_index=ignore_index, avg_non_ignore=avg_non_ignore, **kwargs
+        )
         if self.distance_matrix is not None:
             batch_size = cls_score.size(0)
             num_classes = cls_score.size(1)
             distance_weights = self.distance_matrix[label.view(-1), :].view(batch_size, num_classes)
             loss = loss * distance_weights.gather(1, label.view(-1, 1)).view(-1)
-
         if reduction == 'mean':
             if avg_non_ignore:
                 loss = loss.sum() / (label != ignore_index).sum()
@@ -469,36 +458,18 @@ class DistanceWeightedCrossEntropyLoss(nn.Module):
                 loss = loss.mean()
         elif reduction == 'sum':
             loss = loss.sum()
-
         return loss
 
-    def forward(self,
-                cls_score,
-                label,
-                weight=None,
-                avg_factor=None,
-                reduction_override=None,
-                ignore_index=None,
-                **kwargs):
+    def forward(self, cls_score, label, weight=None, avg_factor=None, reduction_override=None, ignore_index=None, **kwargs):
         assert reduction_override in (None, 'none', 'mean', 'sum')
-        reduction = (
-            reduction_override if reduction_override else self.reduction)
+        reduction = (reduction_override if reduction_override else self.reduction)
         if ignore_index is None:
             ignore_index = self.ignore_index
-
         if self.class_weight is not None:
-            class_weight = cls_score.new_tensor(
-                self.class_weight, device=cls_score.device)
+            class_weight = cls_score.new_tensor(self.class_weight, device=cls_score.device)
         else:
             class_weight = None
         loss_cls = self.loss_weight * self.cls_criterion(
-            cls_score,
-            label,
-            weight,
-            class_weight=class_weight,
-            reduction=reduction,
-            avg_factor=avg_factor,
-            ignore_index=ignore_index,
-            avg_non_ignore=self.avg_non_ignore,
-            **kwargs)
+            cls_score, label, weight, class_weight=class_weight, reduction=reduction,
+            avg_factor=avg_factor, ignore_index=ignore_index, avg_non_ignore=self.avg_non_ignore, **kwargs)
         return loss_cls
