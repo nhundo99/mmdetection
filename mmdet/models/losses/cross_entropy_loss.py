@@ -7,7 +7,9 @@ import torch.nn.functional as F
 
 from mmdet.registry import MODELS
 from .accuracy import accuracy
+# from mmdet.models.losses.accuracy import accuracy
 from .utils import weight_reduce_loss
+# from mmdet.models.losses.utils import weight_reduce_loss
 
 
 def cross_entropy(pred,
@@ -403,50 +405,52 @@ class CrossEntropyCustomLoss(CrossEntropyLoss):
 
 
 def distance_weighted_cross_entropy(pred, label, num_classes, weight=None, reduction='mean', avg_factor=None, ignore_index=-100, avg_non_ignore=False):
-    """Calculate the Distance-Weighted CrossEntropy loss.
-    
+    """
+    Calculate the Distance-Weighted CrossEntropy loss.
+
     Args:
         pred (torch.Tensor): The prediction with shape (N, C), C is the number of classes.
         label (torch.Tensor): The learning label of the prediction.
         num_classes (int): Number of classes.
         weight (torch.Tensor, optional): Sample-wise loss weight.
-        reduction (str, optional): The method used to reduce the loss.
+        reduction (str, optional): The method used to reduce the loss. Options are "none", "mean" and "sum".
         avg_factor (int, optional): Average factor that is used to average the loss. Defaults to None.
         ignore_index (int | None): The label index to be ignored. Default: -100.
         avg_non_ignore (bool): The flag to decide whether the loss is only averaged over non-ignored targets. Default: False.
-    
+
     Returns:
         torch.Tensor: The calculated loss.
     """
-    # The default value of ignore_index is the same as F.cross_entropy
-    ignore_index = -100 if ignore_index is None else ignore_index
     # Calculate the base cross-entropy loss
-    loss = F.cross_entropy(pred, label, reduction='none', ignore_index=ignore_index)
-    
+    base_loss = F.cross_entropy(pred, label, reduction='none', ignore_index=ignore_index)
+
+    # Create the distance matrix
+    distance_matrix = torch.abs(torch.arange(num_classes).unsqueeze(1) - torch.arange(num_classes).unsqueeze(0)).float()
+
     # Calculate distance-based weights
-    class_counts = torch.bincount(label, minlength=num_classes).float()
-    class_weights = 1.0 / (class_counts + 1e-6)  # Add small value to avoid division by zero
-    class_weights = class_weights / class_weights.sum()  # Normalize weights
-    
-    # Apply class weights
-    weight = class_weights[label]
-    loss = loss * weight
-    
+    pred_labels = torch.argmax(pred, dim=1)
+    distances = distance_matrix[label, pred_labels]
+
+    # Apply distance-based weights
+    weighted_loss = base_loss * distances
+
     # Reduce the loss
     if reduction == 'mean':
         if avg_factor is None:
             avg_factor = label.numel() - (label == ignore_index).sum().item()
-        loss = loss.sum() / avg_factor
+        weighted_loss = weighted_loss.sum() / avg_factor
     elif reduction == 'sum':
-        loss = loss.sum()
-    
-    return loss
+        weighted_loss = weighted_loss.sum()
+
+    return weighted_loss
+
 
 @MODELS.register_module()
 class DistanceWeightedCrossEntropyLoss(nn.Module):
     def __init__(self, num_classes, reduction='mean', ignore_index=-100, loss_weight=1.0, avg_non_ignore=False):
-        """DistanceWeightedCrossEntropyLoss.
-        
+        """
+        DistanceWeightedCrossEntropyLoss.
+
         Args:
             num_classes (int): Number of classes to classify.
             reduction (str, optional): The method used to reduce the loss. Options are "none", "mean" and "sum". Defaults to 'mean'.
@@ -462,8 +466,9 @@ class DistanceWeightedCrossEntropyLoss(nn.Module):
         self.avg_non_ignore = avg_non_ignore
 
     def forward(self, cls_score, label, weight=None, avg_factor=None, reduction_override=None, ignore_index=None, **kwargs):
-        """Forward function.
-        
+        """
+        Forward function.
+
         Args:
             cls_score (torch.Tensor): The prediction.
             label (torch.Tensor): The learning label of the prediction.
@@ -471,15 +476,16 @@ class DistanceWeightedCrossEntropyLoss(nn.Module):
             avg_factor (int, optional): Average factor that is used to average the loss. Defaults to None.
             reduction_override (str, optional): The method used to reduce the loss. Options are "none", "mean" and "sum".
             ignore_index (int | None): The label index to be ignored. If not None, it will override the default value. Default: None.
-        
+
         Returns:
             torch.Tensor: The calculated loss.
         """
         reduction = reduction_override if reduction_override else self.reduction
         ignore_index = ignore_index if ignore_index is not None else self.ignore_index
-        
         loss_cls = self.loss_weight * distance_weighted_cross_entropy(
             cls_score, label, self.num_classes, weight, reduction, avg_factor, ignore_index, self.avg_non_ignore
         )
-        
         return loss_cls
+    
+
+
