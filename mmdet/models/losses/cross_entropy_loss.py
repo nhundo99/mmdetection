@@ -405,39 +405,21 @@ class CrossEntropyCustomLoss(CrossEntropyLoss):
 
 
 def distance_weighted_cross_entropy(pred, label, num_classes, weight=None, reduction='mean', avg_factor=None, ignore_index=-100, avg_non_ignore=False):
-    """
-    Calculate the Distance-Weighted CrossEntropy loss.
+    """ Calculate the Distance-Weighted CrossEntropy loss. """
+    # Ensure tensors are on the same device
+    device = pred.device
+    label = label.to(device)
+    if weight is not None:
+        weight = weight.to(device)
 
-    Args:
-        pred (torch.Tensor): The prediction with shape (N, C), C is the number of classes.
-        label (torch.Tensor): The learning label of the prediction.
-        num_classes (int): Number of classes.
-        weight (torch.Tensor, optional): Sample-wise loss weight.
-        reduction (str, optional): The method used to reduce the loss. Options are "none", "mean" and "sum".
-        avg_factor (int, optional): Average factor that is used to average the loss. Defaults to None.
-        ignore_index (int | None): The label index to be ignored. Default: -100.
-        avg_non_ignore (bool): The flag to decide whether the loss is only averaged over non-ignored targets. Default: False.
-
-    Returns:
-        torch.Tensor: The calculated loss.
-    """
     # Calculate the base cross-entropy loss
     base_loss = F.cross_entropy(pred, label, reduction='none', ignore_index=ignore_index)
 
-    # Create the distance matrix
-    distance_matrix = torch.abs(torch.arange(num_classes).unsqueeze(1) - torch.arange(num_classes).unsqueeze(0)).float()
+    # Create the distance matrix on the same device
+    distance_matrix = torch.abs(torch.arange(num_classes).unsqueeze(1) - torch.arange(num_classes).unsqueeze(0)).float().to(device)
 
     # Calculate distance-based weights
     pred_labels = torch.argmax(pred, dim=1)
-
-    # debugging
-    print('label size: ', label.size())
-    print('label: ', label)
-    print('pred_labels size: ', pred_labels.size())
-    print('pred labels: ', pred_labels)
-    print('preds size: ', pred.size())
-    print('preds: ', pred)
-
     distances = distance_matrix[label-1, pred_labels-1]
 
     # Apply distance-based weights
@@ -457,16 +439,7 @@ def distance_weighted_cross_entropy(pred, label, num_classes, weight=None, reduc
 @MODELS.register_module()
 class DistanceWeightedCrossEntropyLoss(nn.Module):
     def __init__(self, num_classes, reduction='mean', ignore_index=-100, loss_weight=1.0, avg_non_ignore=False):
-        """
-        DistanceWeightedCrossEntropyLoss.
-
-        Args:
-            num_classes (int): Number of classes to classify.
-            reduction (str, optional): The method used to reduce the loss. Options are "none", "mean" and "sum". Defaults to 'mean'.
-            ignore_index (int | None): The label index to be ignored. Defaults to -100.
-            loss_weight (float, optional): Weight of the loss. Defaults to 1.0.
-            avg_non_ignore (bool): The flag to decide whether the loss is only averaged over non-ignored targets. Default: False.
-        """
+        """ DistanceWeightedCrossEntropyLoss. """
         super(DistanceWeightedCrossEntropyLoss, self).__init__()
         self.num_classes = num_classes
         self.reduction = reduction
@@ -475,22 +448,16 @@ class DistanceWeightedCrossEntropyLoss(nn.Module):
         self.avg_non_ignore = avg_non_ignore
 
     def forward(self, cls_score, label, weight=None, avg_factor=None, reduction_override=None, ignore_index=None, **kwargs):
-        """
-        Forward function.
-
-        Args:
-            cls_score (torch.Tensor): The prediction.
-            label (torch.Tensor): The learning label of the prediction.
-            weight (torch.Tensor, optional): Sample-wise loss weight.
-            avg_factor (int, optional): Average factor that is used to average the loss. Defaults to None.
-            reduction_override (str, optional): The method used to reduce the loss. Options are "none", "mean" and "sum".
-            ignore_index (int | None): The label index to be ignored. If not None, it will override the default value. Default: None.
-
-        Returns:
-            torch.Tensor: The calculated loss.
-        """
+        """ Forward function. """
         reduction = reduction_override if reduction_override else self.reduction
         ignore_index = ignore_index if ignore_index is not None else self.ignore_index
+
+        # Ensure tensors are on the same device
+        device = cls_score.device
+        label = label.to(device)
+        if weight is not None:
+            weight = weight.to(device)
+
         loss_cls = self.loss_weight * distance_weighted_cross_entropy(
             cls_score, label, self.num_classes, weight, reduction, avg_factor, ignore_index, self.avg_non_ignore
         )
