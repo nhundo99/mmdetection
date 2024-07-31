@@ -438,7 +438,7 @@ def distance_weighted_cross_entropy(pred, label, num_classes, weight=None, reduc
     print('preds size: ', pred.size())
     print('preds: ', pred)
 
-    distances = distance_matrix[label, pred_labels]
+    distances = distance_matrix[label-1, pred_labels-1]
 
     # Apply distance-based weights
     weighted_loss = base_loss * distances
