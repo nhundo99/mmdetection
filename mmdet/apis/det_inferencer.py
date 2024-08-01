@@ -425,15 +425,52 @@ class DetInferencer(BaseInferencer):
                 results_dict['visualization'].extend(results['visualization'])
         return results_dict
 
-    def visualize(self, inputs: InputsType, preds: PredType, return_vis: bool = False, show: bool = False, wait_time: int = 0, draw_pred: bool = True, pred_score_thr: float = 0.3, no_save_vis: bool = False, img_out_dir: str = '', **kwargs) -> Union[List[np.ndarray], None]:
+    def visualize(self,
+                  inputs: InputsType,
+                  preds: PredType,
+                  return_vis: bool = False,
+                  show: bool = False,
+                  wait_time: int = 0,
+                  draw_pred: bool = True,
+                  pred_score_thr: float = 0.3,
+                  no_save_vis: bool = False,
+                  img_out_dir: str = '',
+                  **kwargs) -> Union[List[np.ndarray], None]:
+        """Visualize predictions.
+
+        Args:
+            inputs (List[Union[str, np.ndarray]]): Inputs for the inferencer.
+            preds (List[:obj:`DetDataSample`]): Predictions of the model.
+            return_vis (bool): Whether to return the visualization result.
+                Defaults to False.
+            show (bool): Whether to display the image in a popup window.
+                Defaults to False.
+            wait_time (float): The interval of show (s). Defaults to 0.
+            draw_pred (bool): Whether to draw predicted bounding boxes.
+                Defaults to True.
+            pred_score_thr (float): Minimum score of bboxes to draw.
+                Defaults to 0.3.
+            no_save_vis (bool): Whether to force not to save prediction
+                vis results. Defaults to False.
+            img_out_dir (str): Output directory of visualization results.
+                If left as empty, no file will be saved. Defaults to ''.
+
+        Returns:
+            List[np.ndarray] or None: Returns visualization results only if
+            applicable.
+        """
         if no_save_vis is True:
             img_out_dir = ''
+
         if not show and img_out_dir == '' and not return_vis:
             return None
+
         if self.visualizer is None:
-            raise ValueError('Visualization needs the "visualizer" term defined in the config, but got None.')
-        
+            raise ValueError('Visualization needs the "visualizer" term'
+                             'defined in the config, but got None.')
+
         results = []
+
         for single_input, pred in zip(inputs, preds):
             if isinstance(single_input, str):
                 img_bytes = mmengine.fileio.get(single_input)
@@ -445,29 +482,18 @@ class DetInferencer(BaseInferencer):
                 img_num = str(self.num_visualized_imgs).zfill(8)
                 img_name = f'{img_num}.jpg'
             else:
-                raise ValueError('Unsupported input type: ' f'{type(single_input)}')
+                raise ValueError('Unsupported input type: '
+                                 f'{type(single_input)}')
+
+            out_file = osp.join(img_out_dir, 'vis',
+                                img_name) if img_out_dir != '' else None
             
-            out_file = osp.join(img_out_dir, 'vis', img_name) if img_out_dir != '' else None
-            
-            # Ensure the highest confidence prediction is visualized
-            pred_instances = pred.pred_instances
-            if pred_instances is not None:
-                # Move tensors to CPU and convert to NumPy arrays
-                scores = pred_instances.scores.cpu().numpy()
-                print('scores: ', scores)
-                # Filter out predictions below the threshold
-                high_conf_indices = scores >= pred_score_thr
-                pred_instances = pred_instances[high_conf_indices]
-                # Sort predictions by their confidence scores in descending order
-                sorted_indices = np.argsort(-pred_instances.scores.cpu().numpy())
-                print('soreted indices: ', sorted_indices)
-                pred_instances = pred_instances[sorted_indices]
-                print('pred instances: ', pred_instances)
-            
+            print('pred: ', pred)
+
             self.visualizer.add_datasample(
                 img_name,
                 img,
-                pred_instances,
+                pred,
                 show=show,
                 wait_time=wait_time,
                 draw_gt=False,
@@ -478,6 +504,8 @@ class DetInferencer(BaseInferencer):
             results.append(self.visualizer.get_image())
             self.num_visualized_imgs += 1
         
+        print('num visualized images: ', self.num_visualized_imgs)
+
         return results
 
     def postprocess(
