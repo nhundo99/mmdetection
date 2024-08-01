@@ -452,9 +452,8 @@ class DetInferencer(BaseInferencer):
             # Ensure the highest confidence prediction is visualized
             pred_instances = pred.pred_instances
             if pred_instances is not None:
-                # Move tensors to CPU and convert to NumPy arrays
-                scores = pred_instances.scores.cpu().numpy()
-                sorted_indices = np.argsort(-scores)
+                # Sort predictions by their confidence scores in descending order
+                sorted_indices = np.argsort(-pred_instances.scores)
                 pred_instances = pred_instances[sorted_indices]
             
             self.visualizer.add_datasample(
@@ -470,7 +469,7 @@ class DetInferencer(BaseInferencer):
             )
             results.append(self.visualizer.get_image())
             self.num_visualized_imgs += 1
-        
+    
         return results
 
     def postprocess(
