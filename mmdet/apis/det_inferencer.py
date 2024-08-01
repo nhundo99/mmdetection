@@ -454,8 +454,15 @@ class DetInferencer(BaseInferencer):
             if pred_instances is not None:
                 # Move tensors to CPU and convert to NumPy arrays
                 scores = pred_instances.scores.cpu().numpy()
-                sorted_indices = np.argsort(-scores)
+                print('scores: ', scores)
+                # Filter out predictions below the threshold
+                high_conf_indices = scores >= pred_score_thr
+                pred_instances = pred_instances[high_conf_indices]
+                # Sort predictions by their confidence scores in descending order
+                sorted_indices = np.argsort(-pred_instances.scores.cpu().numpy())
+                print('soreted indices: ', sorted_indices)
                 pred_instances = pred_instances[sorted_indices]
+                print('pred instances: ', pred_instances)
             
             self.visualizer.add_datasample(
                 img_name,
