@@ -122,7 +122,7 @@ model = dict(
             loss_centerness=dict(
                 loss_weight=12.0, type='CrossEntropyLoss', use_sigmoid=True),
             loss_cls=dict(
-                type='DistanceWeightedCrossEntropyLoss', num_classes=20, loss_weight=12.0
+                type='DistanceWEightedCrossEntropyLoss', num_classes=20, loss_weight=12.0
             ),
             num_classes=20,
             stacked_convs=1,
