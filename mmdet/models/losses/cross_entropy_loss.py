@@ -422,9 +422,6 @@ def distance_weighted_cross_entropy(pred, label, num_classes, weight=None, reduc
     pred_labels = torch.argmax(pred, dim=1)
     distances = distance_matrix[label-1, pred_labels]
 
-    print('label: ', label)
-    print('pred_labels: ', pred_labels)
-
     # Apply distance-based weights
     weighted_loss = base_loss * distances
 
