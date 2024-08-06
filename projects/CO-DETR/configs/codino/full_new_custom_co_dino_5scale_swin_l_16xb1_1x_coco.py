@@ -122,7 +122,7 @@ model = dict(
             loss_centerness=dict(
                 loss_weight=12.0, type='CrossEntropyLoss', use_sigmoid=True),
             loss_cls=dict(
-                type='CrossEntropyLoss', use_sigmoid=True, loss_weight=12.0
+                type='DistanceWeightedCrossEntropyLoss', num_classes=20, loss_weight=12.0
             ),
             num_classes=20,
             stacked_convs=1,
@@ -252,7 +252,7 @@ model = dict(
                 in_channels=256,
                 loss_bbox=dict(loss_weight=120.0, type='GIoULoss'),
                 loss_cls=dict(
-                    loss_weight=12.0, type='CrossEntropyLoss', use_sigmoid=False
+                    loss_weight=12.0, type='DistanceWeightedCrossEntropyLoss', num_classes=20
                 ),
                 num_classes=20,
                 reg_class_agnostic=False,
