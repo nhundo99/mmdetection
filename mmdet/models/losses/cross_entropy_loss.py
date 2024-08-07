@@ -425,12 +425,12 @@ def distance_weighted_cross_entropy(pred, label, num_classes, weight=None, reduc
     # Calculate distance-based weights
 
     pred_labels = torch.argmax(pred, dim=1)
-    print('labels: ', label)
-
-    assert (label >= 1).all(), "Labels < 1"
-    assert (label <= num_classes).all(), "Labels > 20"
-    assert (pred_labels >= 0).all(), "pred_labels < 0"
-    assert (pred_labels < num_classes).all(), "pred_labels >= 20"  
+    
+    # for debugging
+    # assert (label >= 1).all(), "Labels < 1"
+    # assert (label <= num_classes).all(), "Labels > 20"
+    # assert (pred_labels >= 0).all(), "pred_labels < 0"
+    # assert (pred_labels < num_classes).all(), "pred_labels >= 20"  
 
     distances = distance_matrix[label, pred_labels]
 
