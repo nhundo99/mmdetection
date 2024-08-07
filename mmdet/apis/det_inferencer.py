@@ -1,3 +1,4 @@
+
 # Copyright (c) OpenMMLab. All rights reserved.
 import copy
 import os.path as osp
@@ -487,8 +488,6 @@ class DetInferencer(BaseInferencer):
 
             out_file = osp.join(img_out_dir, 'vis',
                                 img_name) if img_out_dir != '' else None
-            
-            print('pred: ', pred)
 
             self.visualizer.add_datasample(
                 img_name,
@@ -503,8 +502,6 @@ class DetInferencer(BaseInferencer):
             )
             results.append(self.visualizer.get_image())
             self.num_visualized_imgs += 1
-        
-        print('num visualized images: ', self.num_visualized_imgs)
 
         return results
 
