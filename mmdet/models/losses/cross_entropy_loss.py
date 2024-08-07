@@ -416,10 +416,13 @@ def distance_weighted_cross_entropy(pred, label, num_classes, weight=None, reduc
     base_loss = F.cross_entropy(pred, label, reduction='none', ignore_index=ignore_index)
 
     # Create the distance matrix on the same device
-    distance_matrix = torch.abs(torch.arange(num_classes).unsqueeze(1) - torch.arange(num_classes).unsqueeze(0)).float().to(device)
+    distance_matrix = torch.abs(torch.arange(num_classes+1).unsqueeze(1) - torch.arange(num_classes+1).unsqueeze(0)).float().to(device)
+
+    distance_matrix[:, num_classes] = 20
+    distance_matrix[num_classes, :] = 20
+    distance_matrix[num_classes, num_classes] = 0
 
     # Calculate distance-based weights
-    print('pred size: ', pred.size())
 
     pred_labels = torch.argmax(pred, dim=1)
     # print('pred_labels: ', pred_labels)
@@ -429,7 +432,7 @@ def distance_weighted_cross_entropy(pred, label, num_classes, weight=None, reduc
     assert (pred_labels >= 0).all(), "pred_labels < 0"
     assert (pred_labels < num_classes).all(), "pred_labels >= 20"  
 
-    distances = distance_matrix[label-1, pred_labels]
+    distances = distance_matrix[label, pred_labels]
 
     # Apply distance-based weights
     weighted_loss = base_loss * distances
