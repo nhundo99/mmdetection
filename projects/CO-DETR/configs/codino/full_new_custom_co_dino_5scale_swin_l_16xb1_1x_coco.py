@@ -7,8 +7,8 @@ default_hooks = dict(
     checkpoint=dict(
         _scope_='mmdet',
         by_epoch=True,
-        interval=1,
-        max_keep_ckpts=1,
+        interval=5,
+        max_keep_ckpts=3,
         type='CheckpointHook'),
     logger=dict(_scope_='mmdet', interval=50, type='LoggerHook'),
     param_scheduler=dict(_scope_='mmdet', type='ParamSchedulerHook'),
@@ -31,26 +31,31 @@ loss_lambda = 2.0
 max_epochs = 10
 max_iters = 270000
 metainfo = dict(
-    classes=['cube_class_1',
-             'cube_class_2',
-             'cube_class_3',
-             'cube_class_4',
-             'cube_class_5',
-             'cube_class_6',
-             'cube_class_7',
-             'cube_class_8',
-             'cube_class_9',
-             'cube_class_10',
-             'cube_class_11',
-             'cube_class_12',
-             'cube_class_13',
-             'cube_class_14',
-             'cube_class_15',
-             'cube_class_16',
-             'cube_class_17',
-             'cube_class_18',
-             'cube_class_19',
-             'cube_class_20'])
+    classes=['cube_class_1', 'cube_class_2', 'cube_class_3', 'cube_class_4',
+    'cube_class_5', 'cube_class_6', 'cube_class_7', 'cube_class_8',
+    'cube_class_9', 'cube_class_10', 'cube_class_11', 'cube_class_12',
+    'cube_class_13', 'cube_class_14', 'cube_class_15', 'cube_class_16',
+    'cube_class_17', 'cube_class_18', 'cube_class_19', 'cube_class_20',
+    'cube_class_21', 'cube_class_22', 'cube_class_23', 'cube_class_24',
+    'cube_class_25', 'cube_class_26', 'cube_class_27', 'cube_class_28',
+    'cube_class_29', 'cube_class_30', 'cube_class_31', 'cube_class_32',
+    'cube_class_33', 'cube_class_34', 'cube_class_35', 'cube_class_36',
+    'cube_class_37', 'cube_class_38', 'cube_class_39', 'cube_class_40',
+    'cube_class_41', 'cube_class_42', 'cube_class_43', 'cube_class_44',
+    'cube_class_45', 'cube_class_46', 'cube_class_47', 'cube_class_48',
+    'cube_class_49', 'cube_class_50', 'cube_class_51', 'cube_class_52',
+    'cube_class_53', 'cube_class_54', 'cube_class_55', 'cube_class_56',
+    'cube_class_57', 'cube_class_58', 'cube_class_59', 'cube_class_60',
+    'cube_class_61', 'cube_class_62', 'cube_class_63', 'cube_class_64',
+    'cube_class_65', 'cube_class_66', 'cube_class_67', 'cube_class_68',
+    'cube_class_69', 'cube_class_70', 'cube_class_71', 'cube_class_72',
+    'cube_class_73', 'cube_class_74', 'cube_class_75', 'cube_class_76',
+    'cube_class_77', 'cube_class_78', 'cube_class_79', 'cube_class_80',
+    'cube_class_81', 'cube_class_82', 'cube_class_83', 'cube_class_84',
+    'cube_class_85', 'cube_class_86', 'cube_class_87', 'cube_class_88',
+    'cube_class_89', 'cube_class_90', 'cube_class_91', 'cube_class_92',
+    'cube_class_93', 'cube_class_94', 'cube_class_95', 'cube_class_96',
+    'cube_class_97', 'cube_class_98', 'cube_class_99', 'cube_class_100'])
 model = dict(
     backbone=dict(
         attn_drop_rate=0.0,
@@ -122,9 +127,9 @@ model = dict(
             loss_centerness=dict(
                 loss_weight=12.0, type='CrossEntropyLoss', use_sigmoid=True),
             loss_cls=dict(
-                type='DistanceWeightedCrossEntropyLoss', num_classes=20, loss_weight=12.0
+                type='DistanceWeightedCrossEntropyLoss', num_classes=100, loss_weight=12.0
             ),
-            num_classes=20,
+            num_classes=100,
             stacked_convs=1,
             type='CoATSSHead'),
     ],
@@ -171,7 +176,7 @@ model = dict(
             type='QualityFocalLoss',
             use_sigmoid=True),
         loss_iou=dict(loss_weight=2.0, type='GIoULoss'),
-        num_classes=20,
+        num_classes=100,
         num_query=900,
         positional_encoding=dict(
             normalize=True,
@@ -252,9 +257,9 @@ model = dict(
                 in_channels=256,
                 loss_bbox=dict(loss_weight=120.0, type='GIoULoss'),
                 loss_cls=dict(
-                    loss_weight=12.0, type='DistanceWeightedCrossEntropyLoss', num_classes=20
+                    loss_weight=12.0, type='DistanceWeightedCrossEntropyLoss', num_classes=100
                 ),
-                num_classes=20,
+                num_classes=100,
                 reg_class_agnostic=False,
                 reg_decoded_bbox=True,
                 roi_feat_size=7,
@@ -402,7 +407,7 @@ test_dataloader = dict(
     batch_size=1,
     dataset=dict(
         _scope_='mmdet',
-        ann_file='/root/Nick/Genioos/synthesize_images/correct_dataset/test_annotations.json', #/root/Sofia/Genioos/data/full_dataset/test/test.json
+        ann_file='/root/Nick/Genioos/synthesize_images/correct_dataset/100_classes_test_annotations.json', #/root/Sofia/Genioos/data/full_dataset/test/test.json
         backend_args=None,
         data_prefix=dict(
             img='/root/Nick/Genioos/synthesize_images/correct_dataset/images/test/'), #/root/Sofia/Genioos/data/full_dataset/test/images/
@@ -432,7 +437,7 @@ test_dataloader = dict(
     sampler=dict(_scope_='mmdet', shuffle=False, type='DefaultSampler'))
 test_evaluator = dict(
     _scope_='mmdet',
-    ann_file='/root/Nick/Genioos/synthesize_images/correct_dataset/test_annotations.json', #/root/Sofia/Genioos/data/full_dataset/test/test.json
+    ann_file='/root/Nick/Genioos/synthesize_images/correct_dataset/100_classes_test_annotations.json', #/root/Sofia/Genioos/data/full_dataset/test/test.json
     backend_args=None,
     format_only=False,
     metric='bbox',
@@ -459,7 +464,7 @@ train_cfg = dict(max_epochs=10, type='EpochBasedTrainLoop', val_interval=1)
 train_dataloader = dict(
     batch_size=1,
     dataset=dict(
-        ann_file='/opt/ml/input/data/train/train_annotations.json', # /opt/ml/input/data/train/correct_train.json
+        ann_file='/opt/ml/input/data/train/100_classes_train_annotations.json', # /opt/ml/input/data/train/correct_train.json
         backend_args=None,
         data_prefix=dict(img='/opt/ml/input/data/train/images/'), #/opt/ml/input/data/train/images/
         data_root='/opt/ml/input/data/',
@@ -747,7 +752,7 @@ val_dataloader = dict(
     batch_size=1,
     dataset=dict(
         _scope_='mmdet',
-        ann_file='/opt/ml/input/data/validation/val_annotations.json', #/opt/ml/input/data/validation/correct_val.json
+        ann_file='/opt/ml/input/data/validation/100_classes_val_annotations.json', #/opt/ml/input/data/validation/correct_val.json
         backend_args=None,
         data_prefix=dict(img='/opt/ml/input/data/validation/images/'), #/opt/ml/input/data/validation/images/
         data_root='/opt/ml/input/data/',
@@ -776,7 +781,7 @@ val_dataloader = dict(
     sampler=dict(_scope_='mmdet', shuffle=False, type='DefaultSampler'))
 val_evaluator = dict(
     _scope_='mmdet',
-    ann_file='/opt/ml/input/data/validation/val_annotations.json', #/opt/ml/input/data/validation/correct_val.json
+    ann_file='/opt/ml/input/data/validation/100_classes_val_annotations.json', #/opt/ml/input/data/validation/correct_val.json
     backend_args=None,
     format_only=False,
     metric='bbox',
